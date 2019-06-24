@@ -2,8 +2,6 @@
 //Created: 24/06/2019
 //Finished: 24/06/2019
 //Name: Hisbaan Noorani
-//
-//This program
 
 import java.awt.*;
 import java.awt.event.*;
@@ -16,6 +14,7 @@ public class ballz implements ActionListener, WindowListener {
     JButton startButton = new JButton("Start Game");
 
     JFrame gameFrame = new JFrame("Ballz");
+    gameDrawing board = new gameDrawing();
 
 
     public static void main(String[] args) {
@@ -48,6 +47,8 @@ public class ballz implements ActionListener, WindowListener {
         gameFrame.setResizable(false);
         gameFrame.setLayout(new BorderLayout());
         if (gameFrame.getWindowListeners().length < 1) gameFrame.addWindowListener(this);
+
+        gameFrame.add(board, BorderLayout.CENTER);
 
         mainFrame.setVisible(false);
         gameFrame.setVisible(true);
