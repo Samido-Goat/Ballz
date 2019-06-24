@@ -30,6 +30,7 @@ public class ballz implements ActionListener, WindowListener {
         mainFrame.setSize(800, 800);
         mainFrame.setResizable(false);
         mainFrame.setLayout(new BorderLayout());
+        if (mainFrame.getWindowListeners().length < 1) mainFrame.addWindowListener(this);
 
         mainFrame.add(mainBottomPanel, BorderLayout.SOUTH);
 
@@ -46,6 +47,7 @@ public class ballz implements ActionListener, WindowListener {
         gameFrame.setSize(400, 800);
         gameFrame.setResizable(false);
         gameFrame.setLayout(new BorderLayout());
+        if (gameFrame.getWindowListeners().length < 1) gameFrame.addWindowListener(this);
 
         mainFrame.setVisible(false);
         gameFrame.setVisible(true);
@@ -68,6 +70,17 @@ public class ballz implements ActionListener, WindowListener {
 
     @Override
     public void windowClosed(WindowEvent e) {
+        JFrame temp = new JFrame();
+
+        if (e.getSource() == mainFrame) {
+            temp = mainFrame;
+        }
+        if(e.getSource() == gameFrame) {
+            temp = gameFrame;
+        }
+
+        JOptionPane.showMessageDialog(temp, "Thanks for playing!\nGoodbye!");
+        System.exit(0);
     }
 
     @Override
