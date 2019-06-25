@@ -18,10 +18,15 @@ public class gameDrawing extends JPanel {
         Graphics2D g = (Graphics2D) g1;
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+        super.paint(g);
+
         g.setColor(Color.black);
         g.fillRect(0,0, 400, 800);
 
         g.setColor(Color.white);
-        g.fillOval(200, 200, 50, 50);
+//        g.fillOval(200, 200, 50, 50);
+
+        g.drawLine(0, 400, 400, 400);
+        g.drawLine(200, 0, 200, 800);
     }
 }
