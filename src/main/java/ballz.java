@@ -7,9 +7,16 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
+import org.dyn4j.collision.AxisAlignedBounds;
+import org.dyn4j.dynamics.*;
+import org.dyn4j.collision.*;
+import org.dyn4j.geometry.Vector2;
+
 
 public class ballz implements ActionListener, MouseListener, WindowListener {
     public final boolean DEBUG = true;
+
+    World world = new World();
 
     JFrame mainFrame = new JFrame("Main Menu");
     JPanel mainBottomPanel = new JPanel();
@@ -43,6 +50,8 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
         movement = new Timer(100, e -> {
             move();
         });
+
+//        this.world.setGravity(World.ZERO_GRAVITY);
 
         mainMenu();
         bounceCheck();
@@ -154,7 +163,8 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
 
         //x + y should always = 5
 
-        //use a basic physics engine
+        //use a basic physics engine -- > maybe not.. seems confusing
+        //processing instead of javafx
 
         if (differenceX == 0 || differenceY == 0) {
         } else {
