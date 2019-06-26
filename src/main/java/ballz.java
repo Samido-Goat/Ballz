@@ -18,14 +18,17 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     JFrame gameFrame = new JFrame("Ballz");
     gameDrawing board = new gameDrawing();
 
-    public static int x = 175;
-    public static int y = 375;
+    public static int x = 195;
+    public static int y = 395;
 
     public int initialX = 0;
     public int initialY = 0;
 
     public int finalX = 0;
     public int finalY = 0;
+
+    int differenceX = 0;
+    int differenceY = 0;
 
     public double angle = 0;
     public double ballMovementAngle = 0;
@@ -76,10 +79,9 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     }
 
 
-
     public void getStartingAngle() {
-        int differenceX = finalX - initialX;
-        int differenceY = finalY - initialY;
+        differenceX = finalX - initialX;
+        differenceY = finalY - initialY;
 
         double relatedAcuteAngle = Math.abs(Math.toDegrees(Math.atan((double) differenceY / (double) differenceX)));
 
@@ -135,27 +137,53 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
         movement.start();
     }
 
+    public int closestToZero(int x, int y) {
+        if (Math.min(Math.abs(x), Math.abs(y)) == Math.abs(x)) {
+            return x;
+        } else if (Math.min(Math.abs(x), Math.abs(y)) == Math.abs(y)) {
+            return y;
+        } else {
+            return 0;
+        }
+    }
+
     public void move() {
 
-        int changeInX = 0;
+        double changeInX = 0;
+        double changeInY = 0;
 
-        if(ballMovementAngle > 0 && ballMovementAngle < 90) {
-            changeInX = 5;
+        //x + y should always = 5
+
+        //use a basic physics engine
+
+        if (differenceX == 0 || differenceY == 0) {
+        } else {
+
+
+            //ball only -y and if you drag up adn to the right
+            double reducedX = differenceX / closestToZero(differenceX, differenceY);
+            double reducedY = differenceY / closestToZero(differenceX, differenceY);
+
+            changeInX = -1 * Math.round(reducedX * (5 / (reducedX + reducedY)));
+            changeInY = -1 * Math.round(reducedY * (5 / (reducedX + reducedY)));
         }
-
-        if(ballMovementAngle > 90 && ballMovementAngle < 180) {
-            changeInX = -5;
-        }
-
-        if(ballMovementAngle > 180 && ballMovementAngle < 270) {
-            changeInX = -5;
-        }
-
-        if(ballMovementAngle > 270 && ballMovementAngle < 360) {
-            changeInX = 5;
-        }
-
-        int changeInY = (int) ((double) changeInX * Math.tan(ballMovementAngle));
+//        if(ballMovementAngle > 0 && ballMovementAngle < 90) {
+//            changeInX = 5;
+//        }
+//
+//        if(ballMovementAngle > 90 && ballMovementAngle < 180) {
+//            changeInX = -5;
+//        }
+//
+//        if(ballMovementAngle > 180 && ballMovementAngle < 270) {
+//            changeInX = -5;
+//        }
+//
+//        if(ballMovementAngle > 270 && ballMovementAngle < 360) {
+//            changeInX = 5;
+//        }
+//
+//        int changeInY = (int) ((double) changeInX * Math.tan(ballMovementAngle));
 
 //        int changeInY = (int) Math.round((5.0 * Math.tan(ballMovementAngle)) / (1.0 + Math.tan(ballMovementAngle)));
 //        changeInX = 5 - Math.abs(changeInY);
@@ -163,7 +191,8 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
         x += changeInX;
         y += changeInY;
 
-        if (DEBUG) System.out.println("change in X: " + changeInX + " | change in Y: " + changeInY + " | angle: " + angle + " | Ball angle: " + ballMovementAngle);
+        if (DEBUG)
+            System.out.println("change in X: " + changeInX + " | change in Y: " + changeInY + " | angle: " + angle + " | Ball angle: " + ballMovementAngle);
 
         board.repaint();
     }
