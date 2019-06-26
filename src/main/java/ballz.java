@@ -18,18 +18,31 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     JFrame gameFrame = new JFrame("Ballz");
     gameDrawing board = new gameDrawing();
 
-    int initialX = 0;
-    int initialY = 0;
+    public static int x = 175;
+    public static int y = 375;
 
-    int finalX = 0;
-    int finalY = 0;
+    public int initialX = 0;
+    public int initialY = 0;
+
+    public int finalX = 0;
+    public int finalY = 0;
+
+    public double angle = 0;
+    public double ballMovementAngle = 0;
+
+    public Timer movement;
 
     public static void main(String[] args) {
         new ballz();
     }
 
     ballz() {
+        movement = new Timer(100, e -> {
+            move();
+        });
+
         mainMenu();
+        bounceCheck();
     }
 
     public void mainMenu() {
@@ -62,26 +75,13 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
         gameFrame.setVisible(true);
     }
 
-    public void move() {
-        /*
-         * have an x and y coordinate for the ball.
-         * have an angle that the ball is moving at (like a bearing from 0-360).
-         * find out how much the x and y coordinates need to change based on this angle.
-         *
-         * find a way to make this angle set by the mouse being dragged (pressed and released) on the ball at the start of the simulation via relative coordinates
-         *
-         * for the bouncing, when it hits the east wall, change the angle to the same as the incident from the normal so that is follows the laws of reflection
-         * do the same for the west, north and south walls.
-         * for example, if the angle is 45 (moving up and to the right at a perfect diagonal) and the ball hits the east wall then the reflection should be 90 + 45 = 135 (or 180 - 45, not sure which to use yet but I think that this is it because you want to use the related angle to find the actual angle, no the actual angle to find the actual angle.)
-         * */
-    }
+
 
     public void getStartingAngle() {
         int differenceX = finalX - initialX;
         int differenceY = finalY - initialY;
 
         double relatedAcuteAngle = Math.abs(Math.toDegrees(Math.atan((double) differenceY / (double) differenceX)));
-        double angle = 0;
 
         if (differenceX > 0 && differenceY > 0) {
             angle = relatedAcuteAngle;
@@ -100,31 +100,81 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
             System.out.println("quadrant 4");
         }
 
-        if(differenceX == 0) {
-            if(differenceY > 0) {
+        if (differenceX == 0) {
+            if (differenceY > 0) {
                 angle = 90;
             }
-            if(differenceY < 0) {
+            if (differenceY < 0) {
                 angle = 270;
             }
-            if(differenceY == 0) {
+            if (differenceY == 0) {
                 angle = 0;
             }
         }
 
-        if(differenceY == 0) {
-            if(differenceX > 0) {
+        if (differenceY == 0) {
+            if (differenceX > 0) {
                 angle = 360;
             }
-            if(differenceX < 0) {
+            if (differenceX < 0) {
                 angle = 180;
             }
-            if(differenceX == 0) {
+            if (differenceX == 0) {
                 angle = 0;
             }
         }
         if (DEBUG) System.out.println("X: " + differenceX + " | Y: " + differenceY + " | 0r: " + relatedAcuteAngle);
         if (DEBUG) System.out.println(angle);
+
+        if (angle < 180) {
+            ballMovementAngle = angle + 180;
+        } else if (angle > 180) {
+            ballMovementAngle = angle - 180;
+        }
+
+        movement.start();
+    }
+
+    public void move() {
+
+        int changeInX = 0;
+
+        if(ballMovementAngle > 0 && ballMovementAngle < 90) {
+            changeInX = 5;
+        }
+
+        if(ballMovementAngle > 90 && ballMovementAngle < 180) {
+            changeInX = -5;
+        }
+
+        if(ballMovementAngle > 180 && ballMovementAngle < 270) {
+            changeInX = -5;
+        }
+
+        if(ballMovementAngle > 270 && ballMovementAngle < 360) {
+            changeInX = 5;
+        }
+
+        int changeInY = (int) ((double) changeInX * Math.tan(ballMovementAngle));
+
+//        int changeInY = (int) Math.round((5.0 * Math.tan(ballMovementAngle)) / (1.0 + Math.tan(ballMovementAngle)));
+//        changeInX = 5 - Math.abs(changeInY);
+
+        x += changeInX;
+        y += changeInY;
+
+        if (DEBUG) System.out.println("change in X: " + changeInX + " | change in Y: " + changeInY + " | angle: " + angle + " | Ball angle: " + ballMovementAngle);
+
+        board.repaint();
+    }
+
+    public void bounceCheck() {
+        /*
+         * for the bouncing, when it hits the east wall, change the angle to the same as the incident from the normal so that is follows the laws of reflection
+         * do the same for the west, north and south walls.
+         * for example, if the angle is 45 (moving up and to the right at a perfect diagonal) and the ball hits the east wall then the reflection should be 90 + 45 = 135 (or 180 - 45, not sure which to use yet but I think that this is it because you want to use the related angle to find the actual angle, no the actual angle to find the actual angle.)
+         * */
+
     }
 
     @Override

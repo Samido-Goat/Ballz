@@ -21,10 +21,10 @@ public class gameDrawing extends JPanel {
         super.paint(g);
 
         g.setColor(Color.black);
-        g.fillRect(0,0, 400, 800);
+        g.fillRect(0, 0, 400, 800);
 
         g.setColor(Color.white);
-//        g.fillOval(200, 200, 50, 50);
+        g.fillOval(ballz.x, ballz.y, 10, 10);
 
         g.drawLine(0, 400, 400, 400);
         g.drawLine(200, 0, 200, 800);
