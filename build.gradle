@@ -12,7 +12,5 @@ repositories {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/org.dyn4j/dyn4j
-    compile group: 'org.dyn4j', name: 'dyn4j', version: '3.3.0'
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

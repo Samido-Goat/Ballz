@@ -1,22 +1,14 @@
 //File: ballz.java
 //Created: 24/06/2019
 //Finished: 24/06/2019
-//Name: Hisbaan Noorani
+//Author: Hisbaan Noorani
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-import org.dyn4j.collision.AxisAlignedBounds;
-import org.dyn4j.dynamics.*;
-import org.dyn4j.collision.*;
-import org.dyn4j.geometry.Vector2;
-
-
 public class ballz implements ActionListener, MouseListener, WindowListener {
     public final boolean DEBUG = true;
-
-    World world = new World();
 
     JFrame mainFrame = new JFrame("Main Menu");
     JPanel mainBottomPanel = new JPanel();
@@ -25,22 +17,27 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     JFrame gameFrame = new JFrame("Ballz");
     gameDrawing board = new gameDrawing();
 
-    public static int x = 195;
-    public static int y = 395;
+    public static int xPos = 195;
+    public static int yPos = 395;
 
-    public int initialX = 0;
-    public int initialY = 0;
+    public int xDragInitial = 0;
+    public int yDragInitial = 0;
 
-    public int finalX = 0;
-    public int finalY = 0;
+    public int xDragFinal = 0;
+    public int yDragFinal = 0;
 
-    int differenceX = 0;
-    int differenceY = 0;
+    int xDragDelta = 0;
+    int yDragDelta = 0;
 
-    public double angle = 0;
+    int xVelocity = 0;
+    int yVelocity = 0;
+
+    public double dragAngle = 0;
     public double ballMovementAngle = 0;
 
     public Timer movement;
+
+    Velocity velocity = new Velocity();
 
     public static void main(String[] args) {
         new ballz();
@@ -51,10 +48,7 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
             move();
         });
 
-//        this.world.setGravity(World.ZERO_GRAVITY);
-
         mainMenu();
-        bounceCheck();
     }
 
     public void mainMenu() {
@@ -89,131 +83,90 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
 
 
     public void getStartingAngle() {
-        differenceX = finalX - initialX;
-        differenceY = finalY - initialY;
+        xDragDelta = xDragFinal - xDragInitial;
+        yDragDelta = yDragFinal - yDragInitial;
 
-        double relatedAcuteAngle = Math.abs(Math.toDegrees(Math.atan((double) differenceY / (double) differenceX)));
+        double relatedAcuteAngle = Math.abs(Math.toDegrees(Math.atan((double) yDragDelta / (double) xDragDelta)));
 
-        if (differenceX > 0 && differenceY > 0) {
-            angle = relatedAcuteAngle;
+        if (xDragDelta > 0 && yDragDelta > 0) {
+            dragAngle = relatedAcuteAngle;
             System.out.println("quadrant 1");
         }
-        if (differenceX < 0 && differenceY > 0) {
-            angle = 180 - relatedAcuteAngle;
+        if (xDragDelta < 0 && yDragDelta > 0) {
+            dragAngle = 180 - relatedAcuteAngle;
             System.out.println("quadrant 2");
         }
-        if (differenceX < 0 && differenceY < 0) {
-            angle = 180 + relatedAcuteAngle;
+        if (xDragDelta < 0 && yDragDelta < 0) {
+            dragAngle = 180 + relatedAcuteAngle;
             System.out.println("quadrant 3");
         }
-        if (differenceX > 0 && differenceY < 0) {
-            angle = 360 - relatedAcuteAngle;
+        if (xDragDelta > 0 && yDragDelta < 0) {
+            dragAngle = 360 - relatedAcuteAngle;
             System.out.println("quadrant 4");
         }
 
-        if (differenceX == 0) {
-            if (differenceY > 0) {
-                angle = 90;
+        if (xDragDelta == 0) {
+            if (yDragDelta > 0) {
+                dragAngle = 90;
             }
-            if (differenceY < 0) {
-                angle = 270;
+            if (yDragDelta < 0) {
+                dragAngle = 270;
             }
-            if (differenceY == 0) {
-                angle = 0;
+            if (yDragDelta == 0) {
+                dragAngle = 0;
             }
         }
 
-        if (differenceY == 0) {
-            if (differenceX > 0) {
-                angle = 360;
+        if (yDragDelta == 0) {
+            if (xDragDelta > 0) {
+                dragAngle = 360;
             }
-            if (differenceX < 0) {
-                angle = 180;
+            if (xDragDelta < 0) {
+                dragAngle = 180;
             }
-            if (differenceX == 0) {
-                angle = 0;
+            if (xDragDelta == 0) {
+                dragAngle = 0;
             }
         }
-        if (DEBUG) System.out.println("X: " + differenceX + " | Y: " + differenceY + " | 0r: " + relatedAcuteAngle);
-        if (DEBUG) System.out.println(angle);
+        if (DEBUG) System.out.println("X: " + xDragDelta + " | Y: " + yDragDelta + " | 0r: " + relatedAcuteAngle);
+        if (DEBUG) System.out.println(dragAngle);
 
-        if (angle < 180) {
-            ballMovementAngle = angle + 180;
-        } else if (angle > 180) {
-            ballMovementAngle = angle - 180;
+        if (dragAngle == 0) {
+            ballMovementAngle = 180;
+        } else if (dragAngle == 180) {
+            ballMovementAngle = 0;
+        } else if (dragAngle < 180) {
+            ballMovementAngle = dragAngle + 180;
+        } else if (dragAngle > 180) {
+            ballMovementAngle = dragAngle - 180;
         }
+
+        if (ballMovementAngle < 0) {
+            ballMovementAngle += 360;
+            if (DEBUG) System.out.println("angle < 0");
+        } else if (ballMovementAngle > 360) {
+            ballMovementAngle -= 360;
+            if (DEBUG) System.out.println("angle > 360");
+        }
+
+        xVelocity = (int) (5 * Math.cos(Math.toRadians(ballMovementAngle)));
+        yVelocity = (int) (5 * Math.sin(Math.toRadians(ballMovementAngle)));
+
+        if (DEBUG)
+            System.out.println("xVel: " + xVelocity + " | yVel: " + yVelocity + " | dragAngle: " + dragAngle + " | ballAngle: " + ballMovementAngle);
 
         movement.start();
     }
 
-    public int closestToZero(int x, int y) {
-        if (Math.min(Math.abs(x), Math.abs(y)) == Math.abs(x)) {
-            return x;
-        } else if (Math.min(Math.abs(x), Math.abs(y)) == Math.abs(y)) {
-            return y;
-        } else {
-            return 0;
-        }
-    }
-
     public void move() {
-
-        double changeInX = 0;
-        double changeInY = 0;
-
-        //x + y should always = 5
-
-        //use a basic physics engine -- > maybe not.. seems confusing
-        //processing instead of javafx
-
-        if (differenceX == 0 || differenceY == 0) {
+        if (xDragDelta == 0 || yDragDelta == 0) {
         } else {
 
+            xPos += xVelocity;
+            yPos += yVelocity;
 
-            //ball only -y and if you drag up adn to the right
-            double reducedX = differenceX / closestToZero(differenceX, differenceY);
-            double reducedY = differenceY / closestToZero(differenceX, differenceY);
-
-            changeInX = -1 * Math.round(reducedX * (5 / (reducedX + reducedY)));
-            changeInY = -1 * Math.round(reducedY * (5 / (reducedX + reducedY)));
+            board.repaint();
         }
-//        if(ballMovementAngle > 0 && ballMovementAngle < 90) {
-//            changeInX = 5;
-//        }
-//
-//        if(ballMovementAngle > 90 && ballMovementAngle < 180) {
-//            changeInX = -5;
-//        }
-//
-//        if(ballMovementAngle > 180 && ballMovementAngle < 270) {
-//            changeInX = -5;
-//        }
-//
-//        if(ballMovementAngle > 270 && ballMovementAngle < 360) {
-//            changeInX = 5;
-//        }
-//
-//        int changeInY = (int) ((double) changeInX * Math.tan(ballMovementAngle));
-
-//        int changeInY = (int) Math.round((5.0 * Math.tan(ballMovementAngle)) / (1.0 + Math.tan(ballMovementAngle)));
-//        changeInX = 5 - Math.abs(changeInY);
-
-        x += changeInX;
-        y += changeInY;
-
-        if (DEBUG)
-            System.out.println("change in X: " + changeInX + " | change in Y: " + changeInY + " | angle: " + angle + " | Ball angle: " + ballMovementAngle);
-
-        board.repaint();
-    }
-
-    public void bounceCheck() {
-        /*
-         * for the bouncing, when it hits the east wall, change the angle to the same as the incident from the normal so that is follows the laws of reflection
-         * do the same for the west, north and south walls.
-         * for example, if the angle is 45 (moving up and to the right at a perfect diagonal) and the ball hits the east wall then the reflection should be 90 + 45 = 135 (or 180 - 45, not sure which to use yet but I think that this is it because you want to use the related angle to find the actual angle, no the actual angle to find the actual angle.)
-         * */
-
     }
 
     @Override
@@ -224,22 +177,22 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     }
 
     /*
-     * by the amount that the x and y values change, what is the angle that the user is pulling and what is the angle 180 degrees from that
-     * aka what angle should the ball move in
+     * by the amount that the xPos and yPos values change, what is the dragAngle that the user is pulling and what is the dragAngle 180 degrees from that
+     * aka what dragAngle should the ball move in
      */
     @Override
     public void mousePressed(MouseEvent e) {
-        if (e.getSource() == gameFrame) { //and mouse is on the ball (use the x and y coordinates of the ball and how big the ball is to generate an area where the ball is.
-            initialX = e.getX();
-            initialY = e.getY();
+        if (e.getSource() == gameFrame) { //and mouse is on the ball (use the xPos and yPos coordinates of the ball and how big the ball is to generate an area where the ball is.
+            xDragInitial = e.getX();
+            yDragInitial = e.getY();
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
         if (e.getSource() == gameFrame) {
-            finalX = e.getX();
-            finalY = e.getY();
+            xDragFinal = e.getX();
+            yDragFinal = e.getY();
         }
 
         getStartingAngle();
