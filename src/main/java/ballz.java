@@ -17,8 +17,8 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     JFrame gameFrame = new JFrame("Ballz");
     gameDrawing board = new gameDrawing();
 
-    public static int canvasXSize = 800;
-    public static int canvasYSize = 400;
+    public static int canvasXSize = 400;
+    public static int canvasYSize = 800;
     public static int ballDiametre = 10;
     public static int ballRadius = ballDiametre / 2;
 
@@ -76,7 +76,7 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     }
 
     public void startGame() {
-        gameFrame.setSize(canvasXSize, canvasYSize);
+        gameFrame.setSize(canvasXSize, canvasYSize + 22);
         gameFrame.setResizable(false);
         gameFrame.setLayout(new BorderLayout());
         if (gameFrame.getWindowListeners().length < 1) gameFrame.addWindowListener(this);
@@ -179,25 +179,25 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
 
     //TODO the coordinates for this are wrong (due to the position being slightly incorrect). Once that is fixed, come here and fix the coords.
     public void wallCollision() {
-        if(xPos >= canvasXSize - ballDiametre) {
+        if(xPos >= canvasXSize - ballRadius) {
             xVelocity *= -1;
 
             if (DEBUG) System.out.println("Hit east wall:  (" + xPos + ", " + yPos + ")");
         }
 
-        if(xPos <= 0) {
+        if(xPos <= ballRadius) {
             xVelocity *= -1;
 
             if (DEBUG) System.out.println("Hit west wall:  (" + xPos + ", " + yPos + ")");
         }
 
-        if(yPos >= canvasYSize - ballDiametre) {
+        if(yPos >= canvasYSize - ballRadius) {
             yVelocity *= -1;
 
             if (DEBUG) System.out.println("Hit south wall: (" + xPos + ", " + yPos + ")");
         }
 
-        if(yPos <= 0) {
+        if(yPos <= ballRadius) {
             yVelocity *= -1;
 
             if (DEBUG) System.out.println("Hit north wall: (" + xPos + ", " + yPos + ")");
@@ -216,6 +216,8 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
         if (e.getSource() == gameFrame) { //and mouse is on the ball (use the xPos and yPos coordinates of the ball and how big the ball is to generate an area where the ball is.
             xDragInitial = e.getX();
             yDragInitial = e.getY();
+//            xDragInitial = xPos;
+//            yDragInitial = yPos;
         }
     }
 
