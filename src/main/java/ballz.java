@@ -17,8 +17,14 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     JFrame gameFrame = new JFrame("Ballz");
     gameDrawing board = new gameDrawing();
 
-    public static int xPos = 195;
-    public static int yPos = 395;
+    public static int canvasXSize = 800;
+    public static int canvasYSize = 400;
+    public static int ballDiametre = 10;
+    public static int ballRadius = ballDiametre / 2;
+
+    //TODO position currently represents the top left corner of the ellipse. It needs to represent the centre pixel
+    public static int xPos = canvasXSize / 2;
+    public static int yPos = canvasYSize / 2;
 
     public int xDragInitial = 0;
     public int yDragInitial = 0;
@@ -44,7 +50,8 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     }
 
     ballz() {
-        movement = new Timer(100, e -> {
+        movement = new Timer(10, e -> {
+            wallCollision();
             move();
         });
 
@@ -69,12 +76,13 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     }
 
     public void startGame() {
-        gameFrame.setSize(400, 800);
+        gameFrame.setSize(canvasXSize, canvasYSize);
         gameFrame.setResizable(false);
         gameFrame.setLayout(new BorderLayout());
         if (gameFrame.getWindowListeners().length < 1) gameFrame.addWindowListener(this);
         if (gameFrame.getMouseListeners().length < 1) gameFrame.addMouseListener(this);
 
+        board.setSize(canvasXSize, canvasYSize);
         gameFrame.add(board, BorderLayout.CENTER);
 
         mainFrame.setVisible(false);
@@ -169,6 +177,33 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
         }
     }
 
+    //TODO the coordinates for this are wrong (due to the position being slightly incorrect). Once that is fixed, come here and fix the coords.
+    public void wallCollision() {
+        if(xPos >= canvasXSize - ballDiametre) {
+            xVelocity *= -1;
+
+            if (DEBUG) System.out.println("Hit east wall:  (" + xPos + ", " + yPos + ")");
+        }
+
+        if(xPos <= 0) {
+            xVelocity *= -1;
+
+            if (DEBUG) System.out.println("Hit west wall:  (" + xPos + ", " + yPos + ")");
+        }
+
+        if(yPos >= canvasYSize - ballDiametre) {
+            yVelocity *= -1;
+
+            if (DEBUG) System.out.println("Hit south wall: (" + xPos + ", " + yPos + ")");
+        }
+
+        if(yPos <= 0) {
+            yVelocity *= -1;
+
+            if (DEBUG) System.out.println("Hit north wall: (" + xPos + ", " + yPos + ")");
+        }
+
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == startButton) {
@@ -176,10 +211,6 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
         }
     }
 
-    /*
-     * by the amount that the xPos and yPos values change, what is the dragAngle that the user is pulling and what is the dragAngle 180 degrees from that
-     * aka what dragAngle should the ball move in
-     */
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getSource() == gameFrame) { //and mouse is on the ball (use the xPos and yPos coordinates of the ball and how big the ball is to generate an area where the ball is.

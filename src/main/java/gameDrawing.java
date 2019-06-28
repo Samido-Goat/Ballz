@@ -21,12 +21,12 @@ public class gameDrawing extends JPanel {
         super.paint(g);
 
         g.setColor(Color.black);
-        g.fillRect(0, 0, 400, 800);
+        g.fillRect(0, 0, ballz.canvasXSize, ballz.canvasYSize);
 
         g.setColor(Color.white);
-        g.fillOval(ballz.xPos, ballz.yPos, 10, 10);
+        g.fillOval(ballz.xPos , ballz.yPos, ballz.ballDiametre, ballz.ballDiametre);
 
-        g.drawLine(0, 400, 400, 400);
-        g.drawLine(200, 0, 200, 800);
+        g.drawLine(0, ballz.canvasYSize / 2, ballz.canvasXSize, ballz.canvasYSize / 2);
+        g.drawLine(ballz.canvasXSize / 2, 0, ballz.canvasXSize / 2, ballz.canvasYSize);
     }
 }
