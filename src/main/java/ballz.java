@@ -45,6 +45,10 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
 
     Velocity velocity = new Velocity();
 
+    public static int round = 0;
+    public static int[][] blocks = new int[8][12];
+    public static boolean[][] collisionArray = new boolean[8][12];
+
     public static void main(String[] args) {
         new ballz();
     }
@@ -52,8 +56,15 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
     ballz() {
         movement = new Timer(10, e -> {
             wallCollision();
+            blockCollision();
             move();
         });
+
+        for(int y = 0; y < 12; y++) {
+            for(int x = 0; x < 8; x++) {
+                blocks[x][y] = 0;
+            }
+        }
 
         mainMenu();
     }
@@ -87,8 +98,55 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
 
         mainFrame.setVisible(false);
         gameFrame.setVisible(true);
+
+        nextRound();
     }
 
+    public void nextRound() {
+        round++;
+
+        for (int y = 0; y < 12; y++) {
+            for (int x = 0; x < 8; x++) {
+                System.out.print(blocks[x][y]);
+            }
+            System.out.println("");
+        }
+
+        if (DEBUG) System.out.println("Next Round");
+
+        try {
+            for (int y = 11; y >= 0; y--) {
+                for (int x = 7; x >= 0; x--) {
+                    if (blocks[x][y] != 0) {
+                        blocks[x][y + 1] = blocks[x][y];
+                    }
+                }
+            }
+        } catch (IndexOutOfBoundsException e) {
+            gameOver();
+            e.printStackTrace();
+        }
+
+        for (int x = 0; x < 8; x++) {
+            blocks[x][0] = 0;
+            if (Math.random() > 0.5) {
+                blocks[x][0] = round * 2;
+                if (Math.random() > 0.75) {
+                    blocks[x][0] = -1;
+                }
+            }
+        }
+
+        for (int y = 0; y < 12; y++) {
+            for (int x = 0; x < 8; x++) {
+                if (blocks[x][y] > 0) {
+                    collisionArray[x][y] = true;
+                } else {
+                    collisionArray[x][y] = false;
+                }
+            }
+        }
+    }
 
     public void getStartingAngle() {
         xDragDelta = xDragFinal - xDragInitial;
@@ -177,33 +235,53 @@ public class ballz implements ActionListener, MouseListener, WindowListener {
         }
     }
 
-    //TODO the coordinates for this are wrong (due to the position being slightly incorrect). Once that is fixed, come here and fix the coords.
     public void wallCollision() {
-        if(xPos >= canvasXSize - ballRadius) {
+        if (xPos >= canvasXSize - ballRadius) {
             xVelocity *= -1;
 
             if (DEBUG) System.out.println("Hit east wall:  (" + xPos + ", " + yPos + ")");
         }
 
-        if(xPos <= ballRadius) {
+        if (xPos <= ballRadius) {
             xVelocity *= -1;
 
             if (DEBUG) System.out.println("Hit west wall:  (" + xPos + ", " + yPos + ")");
         }
 
-        if(yPos >= canvasYSize - ballRadius) {
-            yVelocity *= -1;
+        if (yPos >= canvasYSize - ballRadius) {
+            //TODO reset ball to certain height
+
+            yVelocity = 0;
+            xVelocity = 0;
+            yPos -= ballRadius;
 
             if (DEBUG) System.out.println("Hit south wall: (" + xPos + ", " + yPos + ")");
+
+            nextRound();
         }
 
-        if(yPos <= ballRadius) {
+        if (yPos <= ballRadius) {
             yVelocity *= -1;
 
             if (DEBUG) System.out.println("Hit north wall: (" + xPos + ", " + yPos + ")");
         }
+    }
+
+    public void blockCollision() {
+        /*
+        * north, south, east, west
+        * find out what block is being hit by using a for loop
+        * have an if statement asking whether the coords of the ball are the certain distance away from the block
+        * also have whether the block is greater than 0
+        * if so, invert the direction
+        * reduce the number on the block by 1
+        * make sure that collision is not possible on 0's other wise we will have many problems.*/
+    }
+
+    public void gameOver() {
 
     }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == startButton) {
